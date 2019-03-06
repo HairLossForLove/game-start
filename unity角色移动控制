@@ -1,0 +1,62 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PacmanMove : MonoBehaviour
+{
+    // Start is called before the first frame update
+    public float speed = 0.4f;     //定义目标移动速度
+    Vector2 dest = Vector2.zero;   //设立自然参考系，以自身为坐标原点
+
+    void Start()
+    {
+        dest = transform.position;
+        //获取当前的位置(相对于地图）
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        Vector2 p = Vector2.MoveTowards(transform.position, dest, speed);   
+        GetComponent<Rigidbody2D>().MovePosition(p); //确定移动向量的方向和大小，将吃豆人移向目标地点
+        //以下代码是用来
+        //获取方向按键，并且判断吃豆人在该方向上可以移动
+        if((Vector2)transform.position==dest)
+        {
+            Debug.Log("first");      //使用debug函数获取每步操作后的反馈，方便处理异常
+            if (Input.GetKey(KeyCode.UpArrow) && valid(Vector2.up))      //判断，如果满足输入了上方向键并且物体可通过时
+            {
+                Debug.Log("up");
+                dest = (Vector2)transform.position + Vector2.up;
+            }
+            if (Input.GetKey(KeyCode.Right) && valid(Vector2.right)      //判断，如果满足输入了右方向键并且物体可通过时
+            {
+                Debug.Log("right");
+                dest = (Vector2)transform.position + Vector2.right;
+            }
+            if (Input.GetKey(KeyCode.DownArrow) && valid(Vector2.down))      //判断，如果满足输入了下方向键并且物体可通过时
+            {
+                Debug.Log("down");
+                dest = (Vector2)transform.position + Vector2.down;
+            }
+            if (Input.GetKey(KeyCode.LeftArrow) && valid(Vector2.left))      //判断，如果满足输入了左方向键并且物体可通过时
+            {
+                Debug.Log("left");
+                dest = (Vector2)transform.position + Vector2.left;
+            }
+
+            Debug.Log(1);                //当上述条件都不满足
+        }
+        Debug.Log(2);
+        //获取角色行走动画
+        Vector2 dir = dest - (Vector2)transform.position;
+        GetComponent<Animator>().SetFloat("DirX", dir.x);
+        GetComponent<Animator>().SetFloat("DirY", dir.y);
+    }
+    bool valid(Vector2 dir)          //判断物体是否被不可通过的物体阻挡
+    {
+        Vector2 pos = transform.position;     
+        RaycastHit2D hit = Physics2D.Linecast(pos + dir, pos);
+        return (hit.collider == GetComponent<Collider2D>());
+    }
+}
